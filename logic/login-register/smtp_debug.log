@@ -1,0 +1,64 @@
+[06-Jul-2025 14:42:55 Europe/Berlin] === FORGOT PASSWORD REQUEST START ===
+[06-Jul-2025 14:42:55 Europe/Berlin] Time: 2025-07-06 14:42:55
+[06-Jul-2025 14:43:00 Europe/Berlin] PHP Warning:  Cannot modify header information - headers already sent by (output started at C:\xampp\htdocs\Final Project\HidroSmart v2.1\vendor\phpmailer\phpmailer\src\SMTP.php:314) in C:\xampp\htdocs\Final Project\HidroSmart v2.1\logic\login-register\forgot_password.php on line 100
+[06-Jul-2025 14:43:34 Europe/Berlin] === FORGOT PASSWORD REQUEST START ===
+[06-Jul-2025 14:43:34 Europe/Berlin] Time: 2025-07-06 14:43:34
+[06-Jul-2025 14:43:38 Europe/Berlin] PHP Warning:  Cannot modify header information - headers already sent by (output started at C:\xampp\htdocs\Final Project\HidroSmart v2.1\vendor\phpmailer\phpmailer\src\SMTP.php:314) in C:\xampp\htdocs\Final Project\HidroSmart v2.1\logic\login-register\forgot_password.php on line 100
+[06-Jul-2025 15:02:45 Europe/Berlin] === FORGOT PASSWORD REQUEST START ===
+[06-Jul-2025 15:02:45 Europe/Berlin] Time: 2025-07-06 15:02:45
+[06-Jul-2025 16:05:35 Europe/Berlin] === FORGOT PASSWORD REQUEST START ===
+[06-Jul-2025 16:05:35 Europe/Berlin] Time: 2025-07-06 16:05:35
+[06-Jul-2025 16:07:01 Europe/Berlin] === FORGOT PASSWORD REQUEST START ===
+[06-Jul-2025 16:07:01 Europe/Berlin] Time: 2025-07-06 16:07:01
+[06-Jul-2025 16:13:03 Europe/Berlin] === FORGOT PASSWORD REQUEST START ===
+[06-Jul-2025 16:13:03 Europe/Berlin] Time: 2025-07-06 16:13:03
+[06-Jul-2025 16:15:58 Europe/Berlin] === FORGOT PASSWORD REQUEST START ===
+[06-Jul-2025 16:15:58 Europe/Berlin] Time: 2025-07-06 16:15:58
+[07-Jul-2025 06:16:53 Europe/Berlin] === FORGOT PASSWORD REQUEST START ===
+[07-Jul-2025 06:16:53 Europe/Berlin] Time: 2025-07-07 06:16:53
+[07-Jul-2025 06:16:57 Europe/Berlin] Forgot password mail error: SMTP Error: Could not authenticate.
+[07-Jul-2025 06:17:04 Europe/Berlin] === FORGOT PASSWORD REQUEST START ===
+[07-Jul-2025 06:17:04 Europe/Berlin] Time: 2025-07-07 06:17:04
+[07-Jul-2025 06:17:08 Europe/Berlin] Forgot password mail error: SMTP Error: Could not authenticate.
+[07-Jul-2025 06:17:47 Europe/Berlin] Admin email send failed: SMTP Error: Could not authenticate.
+[07-Jul-2025 06:19:53 Europe/Berlin] === FORGOT PASSWORD REQUEST START ===
+[07-Jul-2025 06:19:53 Europe/Berlin] Time: 2025-07-07 06:19:53
+[07-Jul-2025 06:19:56 Europe/Berlin] Forgot password mail error: SMTP Error: Could not authenticate.
+[07-Jul-2025 06:22:33 Europe/Berlin] === FORGOT PASSWORD REQUEST START ===
+[07-Jul-2025 06:22:33 Europe/Berlin] Time: 2025-07-07 06:22:33
+[07-Jul-2025 06:22:36 Europe/Berlin] Forgot password mail error: SMTP Error: Could not authenticate.
+[07-Jul-2025 06:24:53 Europe/Berlin] === FORGOT PASSWORD REQUEST START ===
+[07-Jul-2025 06:24:53 Europe/Berlin] Time: 2025-07-07 06:24:53
+[07-Jul-2025 06:24:56 Europe/Berlin] Forgot password mail error: SMTP Error: Could not authenticate.
+[07-Jul-2025 06:25:27 Europe/Berlin] === FORGOT PASSWORD REQUEST START ===
+[07-Jul-2025 06:25:27 Europe/Berlin] Time: 2025-07-07 06:25:27
+[07-Jul-2025 06:25:29 Europe/Berlin] Forgot password mail error: SMTP Error: Could not authenticate.
+[07-Jul-2025 06:25:53 Europe/Berlin] === FORGOT PASSWORD REQUEST START ===
+[07-Jul-2025 06:25:53 Europe/Berlin] Time: 2025-07-07 06:25:53
+[07-Jul-2025 06:25:56 Europe/Berlin] Forgot password mail error: SMTP Error: Could not authenticate.
+[07-Jul-2025 06:32:52 Europe/Berlin] === FORGOT PASSWORD REQUEST START ===
+[07-Jul-2025 06:32:52 Europe/Berlin] Time: 2025-07-07 06:32:52
+[07-Jul-2025 06:32:54 Europe/Berlin] Forgot password mail error: SMTP Error: Could not authenticate.
+[07-Jul-2025 06:33:17 Europe/Berlin] === FORGOT PASSWORD REQUEST START ===
+[07-Jul-2025 06:33:17 Europe/Berlin] Time: 2025-07-07 06:33:17
+[07-Jul-2025 06:33:20 Europe/Berlin] Forgot password mail error: SMTP Error: Could not authenticate.
+[07-Jul-2025 06:33:35 Europe/Berlin] === FORGOT PASSWORD REQUEST START ===
+[07-Jul-2025 06:33:35 Europe/Berlin] Time: 2025-07-07 06:33:35
+[07-Jul-2025 06:33:38 Europe/Berlin] Forgot password mail error: SMTP Error: Could not authenticate.
+[07-Jul-2025 06:34:07 Europe/Berlin] === FORGOT PASSWORD REQUEST START ===
+[07-Jul-2025 06:34:07 Europe/Berlin] Time: 2025-07-07 06:34:07
+[07-Jul-2025 06:34:10 Europe/Berlin] Forgot password mail error: SMTP Error: Could not authenticate.
+[07-Jul-2025 06:36:19 Europe/Berlin] === FORGOT PASSWORD REQUEST START ===
+[07-Jul-2025 06:36:19 Europe/Berlin] Time: 2025-07-07 06:36:19
+[07-Jul-2025 06:36:22 Europe/Berlin] Forgot password mail error: SMTP Error: Could not authenticate.
+[07-Jul-2025 06:37:48 Europe/Berlin] Email verification send failed: SMTP Error: Could not authenticate.
+[07-Jul-2025 06:41:46 Europe/Berlin] === FORGOT PASSWORD REQUEST START ===
+[07-Jul-2025 06:41:46 Europe/Berlin] Time: 2025-07-07 06:41:46
+[07-Jul-2025 06:44:47 Europe/Berlin] === FORGOT PASSWORD REQUEST START ===
+[07-Jul-2025 06:44:47 Europe/Berlin] Time: 2025-07-07 06:44:47
+[07-Jul-2025 06:48:41 Europe/Berlin] === FORGOT PASSWORD REQUEST START ===
+[07-Jul-2025 06:48:41 Europe/Berlin] Time: 2025-07-07 06:48:41
+[07-Jul-2025 10:03:22 Europe/Berlin] === FORGOT PASSWORD REQUEST START ===
+[07-Jul-2025 10:03:22 Europe/Berlin] Time: 2025-07-07 10:03:22
+[07-Jul-2025 10:05:17 Europe/Berlin] === FORGOT PASSWORD REQUEST START ===
+[07-Jul-2025 10:05:17 Europe/Berlin] Time: 2025-07-07 10:05:17
