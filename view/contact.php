@@ -473,6 +473,8 @@ $faqs = [
         const profileComplete = <?php echo $profile_complete ? 'true' : 'false'; ?>;
     </script>
     <script src="../logic/contact/contact.js"></script>
+    <!-- Chatbot Widget -->
+    <script src="../logic/chatbot/chatbot-widget.js"></script>
 
 </body>
 

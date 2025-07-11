@@ -451,6 +451,8 @@ $warranty_terms = [
 
     <!-- JavaScript -->
     <script src="../logic/guarantee/guarantee.js"></script>
+    <!-- Chatbot Widget -->
+    <script src="../logic/chatbot/chatbot-widget.js"></script>
 </body>
 
 </html>

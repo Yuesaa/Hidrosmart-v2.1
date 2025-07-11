@@ -885,6 +885,8 @@ function getPaymentMethodInfo($method)
             }
         }
     </script>
+    <!-- Chatbot Widget -->
+    <script src="../logic/chatbot/chatbot-widget.js"></script>
 </body>
 
 </html>

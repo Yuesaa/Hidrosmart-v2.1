@@ -388,6 +388,8 @@ $company_values = [
 
     <!-- JavaScript -->
     <script src="../logic/about/about.js"></script>
+    <!-- Chatbot Widget -->
+    <script src="../logic/chatbot/chatbot-widget.js"></script>
 </body>
 
 </html>

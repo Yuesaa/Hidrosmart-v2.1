@@ -666,6 +666,8 @@ $payment_methods = [
         </div>
     </div>
 
+    <!-- Chatbot Widget -->
+    <script src="../logic/chatbot/chatbot-widget.js"></script>
 </body>
 
 </html>

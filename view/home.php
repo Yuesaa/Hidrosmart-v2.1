@@ -450,6 +450,8 @@ $stats = [
 
     <!-- JavaScript -->
     <script src="../logic/home/home.js"></script>
+    <!-- Chatbot Widget -->
+    <script src="../logic/chatbot/chatbot-widget.js"></script>
 
     <script>
         // Notification function

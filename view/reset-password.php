@@ -102,5 +102,7 @@ $reset_success = isset($_GET['success']) ? urldecode($_GET['success']) : '';
             });
         });
     </script>
+    <!-- Chatbot Widget -->
+    <script src="../logic/chatbot/chatbot-widget.js"></script>
 </body>
 </html>

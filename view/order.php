@@ -655,6 +655,8 @@ $pricing = $orderLogic->calculateOrderPricing($form_data['quantity']);
             });
         });
     </script>
+    <!-- Chatbot Widget -->
+    <script src="../logic/chatbot/chatbot-widget.js"></script>
 </body>
 
 </html>
