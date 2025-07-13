@@ -1,7 +1,8 @@
 <?php
 // logic/chatbot/send.php
-// Proxy endpoint to forward user messages to the OpenAI Chat Completion API.
-// Returns JSON: { reply: string }
+// HidroSmart Chatbot API endpoint with user authentication
+
+session_start();
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -10,9 +11,33 @@ header('Access-Control-Allow-Methods: POST');
 
 // Enable error reporting for debugging
 error_reporting(E_ALL);
-ini_set('display_errors', 0); // Don't display errors to user
+ini_set('display_errors', 0);
 ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '/../../logs/chatbot_error.log'); // log file
+
+// Create logs directory if it doesn't exist
+$logsDir = __DIR__ . '/../../logs';
+if (!is_dir($logsDir)) {
+    mkdir($logsDir, 0755, true);
+}
+
+ini_set('error_log', $logsDir . '/chatbot_error.log');
+// Debug: log script start and enable display errors
+file_put_contents($logsDir . '/chatbot_debug.log', date('c') . " SEND.PHP start - " . 
+    (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'no-uri') . PHP_EOL,
+    FILE_APPEND
+);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+    http_response_code(401);
+    echo json_encode([
+        'error' => 'unauthorized',
+        'reply' => 'Silakan login terlebih dahulu untuk menggunakan chatbot HidroSmart.'
+    ]);
+    exit();
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -24,135 +49,197 @@ $input = json_decode(file_get_contents('php://input'), true);
 $userMessage = isset($input['message']) ? trim($input['message']) : '';
 
 // Log input for debugging
-file_put_contents(__DIR__ . '/../../logs/chatbot_debug.log', date('c') . " INPUT: " . json_encode($input) . PHP_EOL, FILE_APPEND);
+file_put_contents(
+    $logsDir . '/chatbot_debug.log',
+    date('c') . " USER_ID: " . $_SESSION['user_id'] . " INPUT: " . json_encode($input) . PHP_EOL,
+    FILE_APPEND
+);
+
+// Initialize response
+$response_data = [
+    'error' => null,
+    'reply' => null
+];
 
 if ($userMessage === '') {
-    error_log("Empty user message received.");
-    echo json_encode(['error' => 'empty_message', 'reply' => 'Mohon maaf, pesan tidak boleh kosong.']);
+    $response_data['error'] = 'empty_message';
+    $response_data['reply'] = 'Mohon maaf, pesan tidak boleh kosong.';
+    echo json_encode($response_data);
     exit();
 }
 
-// Load .env if exists (using vlucas/phpdotenv)
-$dotenvPath = __DIR__ . '/../../';
-if (file_exists($dotenvPath . '.env')) {
-    require_once $dotenvPath . 'vendor/autoload.php';
-    $dotenv = Dotenv\Dotenv::createImmutable($dotenvPath);
-    $dotenv->load();
-}
+// Load Dotenv and dependencies
+require_once __DIR__ . '/../../vendor/autoload.php';
+$dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__, 2));
+$dotenv->safeLoad();
 
-// Ambil API key dari environment (.env)
-$openaiApiKey = getenv('OPENAI_API_KEY');
+// Get API key from environment
+$openaiApiKey = trim($_ENV['OPENAI_API_KEY'] ?? getenv('OPENAI_API_KEY') ?? '');
+file_put_contents(
+    $logsDir . '/chatbot_debug.log',
+    date('c') . " Using OPENAI_API_KEY from environment" . PHP_EOL,
+    FILE_APPEND
+);
 
-// Fallback ke konstanta dari config jika belum di-set
-require_once __DIR__ . '/../../config/openai.php';
-if (!$openaiApiKey) {
-    $openaiApiKey = defined('OPENAI_API_KEY') ? OPENAI_API_KEY : null;
-}
-
-// Check if API key is configured
-if (!$openaiApiKey || $openaiApiKey === 'YOUR_OPENAI_KEY' || $openaiApiKey === 'sk-your-actual-openai-api-key-here') {
-    error_log("OpenAI API key not configured.");
+// Validate API key format
+if (!$openaiApiKey || !preg_match('/^sk-[a-zA-Z0-9\-_]{20,}$/', $openaiApiKey)) {
+    error_log("HidroSmart Chatbot: API key not properly configured or invalid. Value: " . substr($openaiApiKey, 0, 8) . "***");
     echo json_encode([
         'error' => 'api_key_not_configured',
-        'reply' => 'Halo! Saya asisten virtual HidroSmart. Saat ini sistem sedang dalam pemeliharaan. Silakan hubungi customer service kami di +62 812-3456-7890 untuk bantuan langsung.'
+        'reply' => 'Halo! Sistem chatbot sedang tidak dapat digunakan karena masalah konfigurasi API key. Silakan hubungi admin.'
     ]);
     exit();
 }
 
-$systemPrompt = "Anda adalah asisten virtual dari HidroSmart yang ramah dan membantu. Tugas Anda adalah memberikan informasi yang akurat dan membantu pengguna terkait produk tumbler pintar HidroSmart. Jawab setiap pertanyaan dengan ramah, sopan, dan ringkas dalam Bahasa Indonesia.
+// Get user info for personalized responses
+$userName = 'Pengguna';
+if (isset($input['username']) && !empty($input['username'])) {
+    $userName = $input['username'];
+    file_put_contents($logsDir . '/chatbot_debug.log', date('c') . " USERNAME from input: $userName" . PHP_EOL, FILE_APPEND);
+} elseif (isset($_SESSION['nama']) && !empty($_SESSION['nama'])) {
+    $userName = $_SESSION['nama'];
+    file_put_contents($logsDir . '/chatbot_debug.log', date('c') . " USERNAME from session: $userName" . PHP_EOL, FILE_APPEND);
+} else {
+    file_put_contents($logsDir . '/chatbot_debug.log', date('c') . " USERNAME fallback: Pengguna" . PHP_EOL, FILE_APPEND);
+}
 
-Gunakan informasi di bawah ini sebagai sumber kebenaran Anda:
+$systemPrompt = <<<PROMPT
+Anda adalah Yuta, asisten virtual HidroSmart yang ramah dan profesional. Nama pengguna adalah '$userName'. Tugas Anda adalah memberikan informasi akurat, edukatif, dan membantu pengguna mengenai produk HidroSmart Tumbler dan website HidroSmart.
 
-Informasi Produk HidroSmart:
-- Nama Produk: HidroSmart Tumbler
-- Kategori: Tumbler Pintar (Smart Tumbler) dengan teknologi sensor
-- Fungsi Utama: Tempat minum pintar yang memantau tingkat dehidrasi dan memberikan notifikasi
-- Fitur Unggulan:
-  1. Sensor Dehidrasi: Mendeteksi tingkat cairan tubuh pengguna
-  2. Konektivitas Bluetooth: Terhubung ke aplikasi mobile
-  3. Notifikasi Cerdas: Pengingat minum otomatis
-  4. Riwayat Konsumsi: Pantau histori minum harian
-  5. Daya Tahan Baterai: Hingga 5 hari
-  6. Layar Sentuh Mini: Tampilan data di tutup botol
-  7. Desain Eco-Friendly: Ramah lingkungan dan stylish
-- Target Pengguna: Pelajar, mahasiswa, pekerja kantoran, traveler
-- Harga: Rp 450.000 (tersedia berbagai warna)
-- Garansi: 2 tahun untuk komponen utama, 1 tahun untuk aksesori
-- Kontak Support: +62 812-3456-7890, support@hidrosmart.com
+LATAR BELAKANG HIDROSMART:
+Hidrosmart adalah tumbler pintar yang tidak hanya berfungsi sebagai tempat minum, tetapi juga dilengkapi sensor untuk memantau tingkat dehidrasi pengguna dan memberikan pemberitahuan melalui perangkat digital seperti smartphone. Hidrosmart hadir sebagai inovasi yang bertujuan membentuk kebiasaan minum air sehat dan teratur, terutama di kalangan pelajar, pekerja kantoran, dan traveler yang sering kali lupa minum karena aktivitas padat. Dengan Hidrosmart, pengguna tidak perlu lagi khawatir menghitung asupan cairan harian.
 
-Aturan Interaksi:
-- Selalu awali dengan sapaan ramah
-- Prioritaskan pertanyaan tentang HidroSmart
-- Jika pertanyaan tidak relevan, arahkan kembali ke produk dengan sopan
-- Berikan informasi yang akurat sesuai data di atas
-- Gunakan emoticon sesekali untuk kesan ramah: 😊 🌟 💧
-- Jika diminta fitur yang tidak ada, jelaskan dengan sopan apa yang bisa dilakukan produk";
+MASALAH YANG DISELESAIKAN HIDROSMART:
+1. Banyak orang sulit mengingat untuk minum air secara teratur, terutama saat sibuk.
+2. Tidak ada cara praktis untuk mengetahui tingkat dehidrasi tubuh secara real-time.
+
+SOLUSI HIDROSMART:
+1. HidroSmart sebagai tumbler pintar dengan sensor yang mendeteksi tingkat cairan tubuh pengguna.
+2. Konektivitas Bluetooth ke aplikasi mobile yang memberikan notifikasi otomatis saat pengguna perlu minum.
+
+FITUR UNGGULAN:
+- Sensor Hidrasi: Mendeteksi tingkat dehidrasi tubuh secara real-time.
+- Konektivitas Bluetooth: Sinkronisasi dengan aplikasi mobile (iOS & Android).
+- Notifikasi pintar: Pengingat minum otomatis.
+- Tracking konsumsi: Pantau riwayat minum harian/mingguan.
+- Baterai tahan lama: 5-7 hari pemakaian.
+- Display LED di tutup botol.
+- Material premium: BPA-free, food grade stainless steel.
+- Desain ergonomis, stylish, dan mudah dibawa.
+
+SPESIFIKASI:
+- Kapasitas: 500ml | Berat: 350g | Dimensi: 24cm x 7cm | Bluetooth 5.0 | Warna: Hitam, Putih, Biru, Merah
+
+HARGA & PEMBELIAN:
+- Harga: Rp 299.000
+- Garansi: 2 tahun komponen utama, 1 tahun aksesori
+- Pembelian: Melalui website/aplikasi HidroSmart
+- Pengiriman: Seluruh Indonesia (gratis ongkir Jabodetabek)
+
+SUPPORT:
+- Customer Service: +62 896-5242-9620 | Email: support@hidrosmart.com | Jam operasional: 08:00-20:00 WIB
+
+ATURAN INTERAKSI:
+- Gunakan nama pengguna '$userName' untuk personalisasi.
+- Jawab dalam Bahasa Indonesia yang ramah, sopan, dan edukatif.
+- Fokus pada pertanyaan seputar HidroSmart, fitur, pembelian, garansi, dan support.
+- Jika pertanyaan di luar topik, arahkan dengan sopan ke topik HidroSmart.
+- Gunakan emoji sesekali: 😊 💧 🌟 ⚡
+- Berikan solusi praktis dan informasi yang berguna.
+
+PROMPT;
 
 $payload = [
-    'model' => 'gpt-3.5-turbo',
+    'model' => 'gpt-4o-mini',
     'messages' => [
         ['role' => 'system', 'content' => $systemPrompt],
         ['role' => 'user', 'content' => $userMessage]
     ],
-    'max_tokens' => 300,
-    'temperature' => 0.7,
+    // 'max_tokens' => 350,
+    // 'temperature' => 0.8,
 ];
 
 // Log payload for debugging
-file_put_contents(__DIR__ . '/../../logs/chatbot_debug.log', date('c') . " PAYLOAD: " . json_encode($payload) . PHP_EOL, FILE_APPEND);
+file_put_contents(
+    $logsDir . '/chatbot_debug.log',
+    date('c') . " PAYLOAD: " . json_encode($payload) . PHP_EOL,
+    FILE_APPEND
+);
 
 $ch = curl_init('https://api.openai.com/v1/chat/completions');
+
+// Build headers
+$headers = [
+    'Content-Type: application/json',
+    'Authorization: Bearer ' . $openaiApiKey,
+];
+
 curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_POST => true,
-    CURLOPT_HTTPHEADER => [
-        'Content-Type: application/json',
-        'Authorization: Bearer ' . $openaiApiKey,
-    ],
+    CURLOPT_HTTPHEADER => $headers,
     CURLOPT_POSTFIELDS => json_encode($payload),
     CURLOPT_TIMEOUT => 30,
-    CURLOPT_SSL_VERIFYPEER => false, // For development only
+    CURLOPT_SSL_VERIFYPEER => true,
+    CURLOPT_USERAGENT => 'HidroSmart-Chatbot/1.0',
 ]);
 
+file_put_contents($logsDir . '/chatbot_debug.log', date('c') . " CURL: about to exec" . PHP_EOL, FILE_APPEND);
 $response = curl_exec($ch);
 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 $curlError = curl_error($ch);
+file_put_contents($logsDir . '/chatbot_debug.log', date('c') . " CURL: done exec HTTP $httpCode CURLERR: $curlError RESPONSE: " . substr($response,0,400) . PHP_EOL, FILE_APPEND);
 curl_close($ch);
 
 // Log response for debugging
-file_put_contents(__DIR__ . '/../../logs/chatbot_debug.log', date('c') . " RESPONSE: " . $response . " | HTTP: $httpCode | CURL: $curlError" . PHP_EOL, FILE_APPEND);
+file_put_contents($logsDir . '/chatbot_debug.log', date('c') . " RESPONSE CODE: $httpCode RESPONSE: $response" . PHP_EOL, FILE_APPEND);
+
+// Tangani error 401 khusus (invalid API key)
+if ($httpCode == 429) {
+    error_log("HidroSmart Chatbot: OpenAI API returned 429 Insufficient Quota.");
+    echo json_encode([
+        'error' => 'insufficient_quota',
+        'reply' => 'Mohon maaf, chatbot tidak dapat merespons karena kuota layanan kami telah habis. Silakan hubungi admin untuk informasi lebih lanjut.'
+    ]);
+    exit();
+} elseif ($httpCode == 401) {
+    error_log("HidroSmart Chatbot: OpenAI API returned 401 Unauthorized. Check API key validity and project access.");
+    echo json_encode([
+        'error' => 'invalid_api_key',
+        'reply' => 'API key OpenAI yang digunakan tidak valid atau tidak memiliki akses. Silakan cek kembali API key Anda di dashboard OpenAI.'
+    ]);
+    exit();
+}
+
+// Log response for debugging
+file_put_contents(
+    $logsDir . '/chatbot_debug.log',
+    date('c') . " RESPONSE CODE: $httpCode RESPONSE: " . substr($response, 0, 500) . PHP_EOL,
+    FILE_APPEND
+);
 
 if ($response === false || !empty($curlError)) {
     error_log("CURL Error: " . $curlError);
-    echo json_encode([
-        'error' => 'connection_error',
-        'reply' => 'Halo! Saya asisten HidroSmart 😊 Saat ini koneksi sedang bermasalah. Untuk bantuan langsung, silakan hubungi customer service kami di +62 812-3456-7890 atau email support@hidrosmart.com'
-    ]);
-    exit();
-}
-
-if ($httpCode >= 400) {
+    $response_data['error'] = 'connection_error';
+    $response_data['reply'] = "Halo $userName! 😊 Saat ini koneksi sedang bermasalah. Untuk bantuan langsung, silakan hubungi customer service kami di +62 812-3456-7890";
+} else if ($httpCode >= 400) {
     error_log("API Error: HTTP $httpCode - $response");
-    echo json_encode([
-        'error' => 'api_error',
-        'reply' => 'Halo! Saya asisten HidroSmart 😊 Sistem sedang mengalami gangguan. Silakan coba lagi dalam beberapa saat atau hubungi customer service kami di +62 812-3456-7890'
-    ]);
-    exit();
+    $response_data['error'] = 'api_error';
+    $response_data['reply'] = "Halo $userName! 😊 Sistem sedang mengalami gangguan. Silakan coba lagi atau hubungi customer service kami di +62 812-3456-7890";
+} else {
+    $data = json_decode($response, true);
+    if (!$data || !isset($data['choices'][0]['message']['content'])) {
+        error_log("Invalid response from OpenAI: " . $response);
+        $response_data['error'] = 'invalid_response';
+        $response_data['reply'] = "Halo $userName! 😊 Ada yang bisa saya bantu tentang HidroSmart Tumbler kami?";
+    } else {
+        $reply = trim($data['choices'][0]['message']['content']);
+        if (empty($reply)) {
+            $response_data['reply'] = "Halo $userName! 😊 Ada yang bisa saya bantu tentang HidroSmart Tumbler kami?";
+        } else {
+            $response_data['reply'] = $reply;
+        }
+    }
 }
 
-$data = json_decode($response, true);
-if (!$data || !isset($data['choices'][0]['message']['content'])) {
-    error_log("Invalid response from OpenAI: " . $response);
-    echo json_encode([
-        'error' => 'invalid_response',
-        'reply' => 'Halo! Saya asisten HidroSmart 😊 Ada yang bisa saya bantu tentang produk HidroSmart Tumbler kami?'
-    ]);
-    exit();
-}
-
-$reply = trim($data['choices'][0]['message']['content']);
-if (empty($reply)) {
-    $reply = 'Halo! Saya asisten HidroSmart 😊 Ada yang bisa saya bantu tentang produk HidroSmart Tumbler kami?';
-}
-
-echo json_encode(['reply' => $reply]);
+echo json_encode($response_data);

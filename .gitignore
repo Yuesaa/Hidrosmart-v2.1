@@ -1,4 +1,5 @@
 .env
-config/openai.php
 /vendor
-replacements.txt
+/logs
+
+
