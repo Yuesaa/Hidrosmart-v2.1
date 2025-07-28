@@ -834,6 +834,64 @@ async function markNotifRead(el) {
     }
 }
 
+/**
+ * Reply to a contact message via WhatsApp.
+ */
+async function replyContact(messageId) {
+    console.log('replyContact called with id', messageId);
+    const { value: text } = await Swal.fire({
+        title: 'Reply to message',
+        input: 'textarea',
+        inputPlaceholder: 'Type your reply here...',
+        showCancelButton: true,
+    });
+    if (!text) return;
+    const formData = new FormData();
+    formData.append('action', 'reply_contact');
+    formData.append('message_id', messageId);
+    formData.append('reply_text', text);
+    try {
+        const res = await fetch(window.location.href, { method: 'POST', body: formData });
+        const json = await res.json();
+        if (json.success) {
+            Swal.fire('Sent!', 'Your reply was sent via WhatsApp.', 'success');
+            markAsRead(messageId);
+        } else {
+            Swal.fire('Error', json.message || 'Failed to send reply.', 'error');
+        }
+    } catch (err) {
+        console.error(err);
+        Swal.fire('Error', 'An error occurred while sending reply.', 'error');
+    }
+}
+
+// Inline reply form handlers
+function toggleReplyArea(messageId) {
+    const area = document.getElementById(`reply-area-${messageId}`);
+    if (area) {
+        area.style.display = area.style.display === 'block' ? 'none' : 'block';
+    }
+}
+
+async function sendInlineReply(messageId) {
+    const textarea = document.getElementById(`reply-text-${messageId}`);
+    const text = textarea?.value.trim();
+    if (!text) return;
+    // Ambil nomor telepon dari atribut data-phone pada card
+    const card = document.querySelector(`.message-card[data-message-id="${messageId}"]`);
+    const phone = card?.dataset.phone;
+    if (!phone) {
+        window.adminDashboard.showNotification('Nomor telepon tidak tersedia', 'error');
+        return;
+    }
+    // Buka chat WhatsApp dengan teks balasan
+    const url = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+    // Tandai pesan sebagai terbaca dan sembunyikan form
+    markAsRead(messageId);
+    toggleReplyArea(messageId);
+}
+
 // Initialize Dashboard
 document.addEventListener("DOMContentLoaded", () => {
     window.adminDashboard = new AdminDashboard()

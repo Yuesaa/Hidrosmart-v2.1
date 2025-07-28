@@ -196,6 +196,7 @@ class ContactPageEnhanced {
             })
 
             const result = await response.json()
+            console.log("WA Debug:", result.wa_debug)
 
             if (result.success) {
                 this.showEnhancedNotification(result.message, "success")

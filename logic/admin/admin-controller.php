@@ -767,6 +767,11 @@ class AdminController
                     echo json_encode(['success' => true, 'data' => $user_details]);
                     break;
 
+                                case 'reply_contact':
+                    $res = $this->replyToContact($_POST['message_id'] ?? '', $_POST['reply_text'] ?? '');
+                    echo json_encode($res);
+                    break;
+
                 default:
                     throw new Exception('Aksi tidak valid');
             }
@@ -802,5 +807,59 @@ class AdminController
              . "<p>Terima kasih telah menggunakan HidroSmart.</p>";
     }
 
+    /**
+     * Reply to a contact message via WhatsApp.
+     */
+    public function replyToContact($messageId, $replyText)
+    {
+        // Load environment variables
+        require_once __DIR__ . '/../../vendor/autoload.php';
+        $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
+        $dotenv->load();
+
+        // Fetch user's phone and name
+        $query = "SELECT c.*, u.phone, u.name FROM contact c LEFT JOIN pengguna u ON c.id_pengguna = u.id_pengguna WHERE c.id_saran = ?";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute([$messageId]);
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$data) {
+            throw new Exception("Message not found");
+        }
+        $phone = $data['phone'];
+        if (empty($phone)) {
+            throw new Exception("User phone number not available");
+        }
+
+        // WhatsApp API credentials
+        $whatsappToken = trim($_ENV['WHATSAPP_TOKEN'] ?? getenv('WHATSAPP_TOKEN') ?? '');
+        $phoneNumberId = trim($_ENV['WHATSAPP_PHONE_NUMBER_ID'] ?? getenv('WHATSAPP_PHONE_NUMBER_ID') ?? '');
+        if (empty($whatsappToken) || empty($phoneNumberId)) {
+            throw new Exception("WhatsApp credentials not configured");
+        }
+
+        $url = "https://graph.facebook.com/v15.0/{$phoneNumberId}/messages";
+        $messageBody = "Hi {$data['name']}, reply from HidroSmart support:\n{$replyText}";
+        $payload = json_encode([
+            'messaging_product' => 'whatsapp',
+            'to' => $phone,
+            'type' => 'text',
+            'text' => ['body' => $messageBody]
+        ]);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: Bearer $whatsappToken", "Content-Type: application/json"]);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($ch);
+        if (curl_errno($ch)) {
+            throw new Exception("WhatsApp send error: " . curl_error($ch));
+        }
+        curl_close($ch);
+
+        // Mark message as read in DB
+        $update = $this->pdo->prepare("UPDATE contact SET read_at = NOW() WHERE id_saran = ?");
+        $update->execute([$messageId]);
+        return ['success' => true];
+    }
 }
 ?>

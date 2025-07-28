@@ -189,4 +189,5 @@ try {
     header('Location: ../../view/payment.php');
     exit();
 }
+
 ?>

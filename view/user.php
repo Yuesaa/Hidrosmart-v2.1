@@ -40,6 +40,7 @@ $user_profile = null;
 
 $dashboard = new DashboardController($pdo);
 
+
 // Handle AJAX requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     header('Content-Type: application/json');
@@ -105,6 +106,7 @@ $user_profile = $dashboard->getUserProfile();
 $insights = $dashboard->getDashboardInsights();
 $contact_messages = $dashboard->getUserContactMessages();
 
+
 // Check for notifications
 $notification = $_SESSION['notification'] ?? null;
 if ($notification) {
@@ -157,6 +159,8 @@ function getPaymentMethodInfo($method)
 </head>
 
 <body>
+
+
     <!-- Notification Container -->
     <div id="notification-container"></div>
 
@@ -629,7 +633,7 @@ function getPaymentMethodInfo($method)
                                                 <span class="input-prefix">+62</span>
                                                 <input type="tel" id="profile_phone" name="phone" 
                                                        value="<?= !empty($user_profile['phone']) ? htmlspecialchars(preg_replace('/^\+62/', '', $user_profile['phone'])) : '' ?>" 
-                                                       placeholder="8123456789" maxlength="13" inputmode="numeric"  oninput="this.value=this.value.replace(/\D/g,'').slice(0,13)">
+                                                       placeholder="8123456789" maxlength="15" inputmode="numeric"  oninput="this.value=this.value.replace(/\D/g,'').slice(0,15)">
                                             </div>
                                             <small class="form-help">Contoh: 8123456789 (9-13 digit)</small>
                                         </div>

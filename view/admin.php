@@ -554,7 +554,7 @@ $color_images = [
                         <div class="messages-container">
                             <?php if (!empty($messages)): ?>
                                 <?php foreach ($messages as $message): ?>
-                                    <div class="message-card <?= $message['status'] === 'unread' ? 'unread' : 'read' ?>" data-message-id="<?= $message['id_message'] ?>">
+                                    <div class="message-card <?= $message['status'] === 'unread' ? 'unread' : 'read' ?>" data-message-id="<?= $message['id_message'] ?>" data-phone="<?= htmlspecialchars($message['phone']) ?>">
                                         <div class="message-header">
                                             <div class="sender-info">
                                                 <div class="customer-avatar">
@@ -589,13 +589,20 @@ $color_images = [
                                             </h5>
                                             <p><?= nl2br(htmlspecialchars($message['message'])) ?></p>
                                         </div>
-                                        <?php if ($message['status'] === 'unread'): ?>
-                                            <div class="message-actions">
+                                        <div class="reply-area" id="reply-area-<?= $message['id_message'] ?>" style="margin:10px 0; display:none;">
+                                            <textarea id="reply-text-<?= $message['id_message'] ?>" class="form-control" placeholder="Tulis balasan..."></textarea>
+                                            <button class="btn btn-sm btn-primary" onclick="sendInlineReply(<?= $message['id_message'] ?>)"><i class="fas fa-paper-plane"></i> Kirim Balasan</button>
+                                        </div>
+                                        <div class="message-actions">
+                                            <?php if ($message['status'] === 'unread'): ?>
                                                 <button class="btn btn-sm btn-primary" onclick="markAsRead(<?= $message['id_message'] ?>)">
                                                     <i class="fas fa-check"></i> Mark as Read
                                                 </button>
-                                            </div>
-                                        <?php endif; ?>
+                                            <?php endif; ?>
+                                            <button class="btn btn-sm btn-success" onclick="toggleReplyArea(<?= $message['id_message'] ?>)">
+                                                <i class="fas fa-reply"></i> Balas
+                                            </button>
+                                        </div>
                                     </div>
                                 <?php endforeach; ?>
                             <?php else: ?>

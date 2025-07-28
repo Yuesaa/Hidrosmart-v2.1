@@ -357,6 +357,7 @@ class OrderPage {
         }
     }
 
+
     // Show order confirmation modal
     showOrderConfirmation() {
         const color = document.getElementById("color").value

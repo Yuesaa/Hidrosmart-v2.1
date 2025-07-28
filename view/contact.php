@@ -55,21 +55,21 @@ $contact_info = [
     [
         'icon' => 'fas fa-phone',
         'title' => 'Telepon',
-        'main' => '+62 812-3456-7890',
-        'sub' => 'Senin - Jumat, 08:00 - 17:00',
+        'main' => '+62 896-5242-9620',
+        'sub' => 'Senin - Minggu, 08:00 - 17:00',
         'background' => 'linear-gradient(150deg, #1976d2 50%, #26c6da 100%);'
     ],
     [
         'icon' => 'fas fa-envelope',
         'title' => 'Email',
         'main' => 'info@hidrosmart.com',
-        'sub' => 'Respon dalam 24 jam',
+        'sub' => 'Respon dalam 9 jam kerja',
         'background' => 'linear-gradient(150deg, #1976d2 50%, #26c6da 100%);'
     ],
     [
         'icon' => 'fas fa-map-marker-alt',
         'title' => 'Alamat',
-        'main' => 'Jakarta, Indonesia',
+        'main' => 'Yogyakarta, Indonesia',
         'sub' => 'Kantor pusat HidroSmart',
         'background' => 'linear-gradient(150deg, #1976d2 50%, #26c6da 100%);'
     ],
@@ -314,11 +314,11 @@ $faqs = [
                             <div class="support-services">
                                 <div class="support-item animate-child">
                                     <div class="support-icon">
-                                        <i class="fas fa-comments"></i>
+                                        <i class="fas fa-robot"></i>
                                     </div>
                                     <div class="support-content">
-                                        <h3>Live Chat</h3>
-                                        <p>Chat langsung dengan tim support kami untuk bantuan cepat</p>
+                                        <h3>Chatbot</h3>
+                                        <p>Chatbot yang siap membantu Anda 24/7</p>
                                     </div>
                                 </div>
 
@@ -348,7 +348,7 @@ $faqs = [
                         <div class="quick-help-card">
                             <h3>Butuh Bantuan Cepat?</h3>
                             <p>Tim customer service kami siap membantu Anda 24/7</p>
-                            <a href="tel:+6281234567890" class="btn-help">
+                            <a href="https://wa.me/6289652429620" class="btn-help">
                                 <i class="fas fa-phone"></i> Hubungi Sekarang
                             </a>
                         </div>

@@ -1,5 +1,5 @@
 <?php
-// reset_password.php - process new password using token
+
 session_start();
 
 // Dapatkan base URL secara dinamis
@@ -9,6 +9,7 @@ $base_path = rtrim(dirname(dirname(dirname($_SERVER['SCRIPT_NAME']))), '/\\');
 $base_url = $protocol . $host . $base_path . '/view/reset-password.php';
 
 // Include file yang diperlukan
+// reset_password.php - process new password using token
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/smtp_config.php';
 
